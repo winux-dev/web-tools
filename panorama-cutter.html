@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Panorama Cutter | Winux's Web Tools</title>
+        <style>
+            body {
+                text-align: center;
+            }
+            canvas {
+                width: 10%;
+                border: 2px solid black;
+            }
+            div#output {
+                display: flex;
+                justify-content: center;
+                overflow-x: scroll;
+                height: fit-content;
+                width: 100%;
+                gap: 1%;
+            }
+        </style>
+    </head>
+    <body>
+        <label for="file">Select your image</label><br />
+        <input type="file" name="file" id="file" accept="image/*" /><br /><br />
+        <label for="sliceCount">How many slices?</label><br />
+        <input
+            type="number"
+            name="sliceCount"
+            id="sliceCount"
+            value="2"
+            min="2"
+        /><br /><br />
+        <label for="aspectRatio">Aspect Ratio</label>
+        <div id="aspectRatio">
+            <input type="number" name="ratioX" id="ratioX" />
+            :
+            <input type="number" name="ratioY" id="ratioY" />
+        </div>
+        <br />
+        <label for="offsetY">Y Offset</label><br />
+        <input type="range" name="offsetY" id="offsetY" min="0" max="0" />
+        <br /><br />
+        <button onclick="splitImage()">Split My Image!</button>
+        <br /><br />
+        <div id="output"></div>
+        <br />
+        <p>
+            To save your images, right click them and press "Save Image As..."
+        </p>
+
+        <script id="app">
+            function splitImage() {
+                const reader = new FileReader();
+                let input = document.getElementById("file");
+                let image = new Image();
+                reader.onload = () => {
+                    image.src = reader.result;
+                };
+                image.onload = () => {
+                    let sliceCount =
+                        document.getElementById("sliceCount").value;
+                    let output = document.getElementById("output");
+                    let canvasWidth = Math.floor(image.width / sliceCount);
+                    for (let slice = 0; slice < sliceCount; slice++) {
+                        let canvas = document.createElement("canvas");
+                        canvas.width = canvasWidth;
+                        canvas.height = image.height;
+                        let context = canvas.getContext("2d");
+                        context.drawImage(
+                            image,
+                            canvas.width * slice,
+                            0,
+                            image.width,
+                            image.height,
+                            0,
+                            0,
+                            image.width,
+                            image.height,
+                        );
+                        output.appendChild(canvas);
+                    }
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        </script>
+    </body>
+</html>
