@@ -5,12 +5,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Panorama Cutter | Winux's Web Tools</title>
         <style>
-            body {
+            div#main {
                 text-align: center;
             }
-            canvas {
+            img {
                 width: 10%;
                 border: 2px solid black;
+            }
+            input {
+                text-align: right;
+            }
+            input.numberInput {
+                width: 3em;
             }
             div#output {
                 display: flex;
@@ -20,70 +26,208 @@
                 width: 100%;
                 gap: 1%;
             }
+            p {
+                padding: 0px 20% 0px 20%;
+            }
         </style>
     </head>
     <body>
-        <label for="file">Select your image</label><br />
-        <input type="file" name="file" id="file" accept="image/*" /><br /><br />
-        <label for="sliceCount">How many slices?</label><br />
-        <input
-            type="number"
-            name="sliceCount"
-            id="sliceCount"
-            value="2"
-            min="2"
-        /><br /><br />
-        <label for="aspectRatio">Aspect Ratio</label>
-        <div id="aspectRatio">
-            <input type="number" name="ratioX" id="ratioX" />
-            :
-            <input type="number" name="ratioY" id="ratioY" />
+        <div id="main">
+            <h3 style="color: red">Alpha Version</h3>
+            <p style="color: red">
+                This app is still under alpha development.<br />
+                Expect bugs and missing features.<br />
+                <a href="https://github.com/winux-dev/web-tools/issues">
+                    Click here to report an issue.
+                </a>
+            </p>
+            <br />
+            <label for="file">Select your image</label><br />
+            <input
+                type="file"
+                name="file"
+                id="file"
+                accept="image/*"
+                onchange="reader.readAsDataURL(fileInterface.files[0])"
+            /><br /><br />
+            <label for="slice-count">How many slices?</label><br />
+            <input
+                class="numberInput"
+                type="number"
+                name="slice-count"
+                id="slice-count"
+                min="2"
+            /><br /><br />
+            <label for="aspectRatio">Aspect Ratio</label>
+            <div id="aspectRatio">
+                <input
+                    class="numberInput"
+                    type="number"
+                    name="ratio-x"
+                    id="ratio-x"
+                    min="1"
+                />
+                :
+                <input
+                    class="numberInput"
+                    type="number"
+                    name="ratio-y"
+                    id="ratio-y"
+                    min="1"
+                />
+            </div>
+            <br />
+            <button onclick="splitImage()">Split My Image!</button>
+            <br /><br />
+            <div id="output"></div>
+            <br />
+            <p>
+                To save your images, right click or tap-and-hold them and press
+                "Save Image As..." or "Download Image"
+            </p>
+            <footer>
+                <p>
+                    Copyright (C) winux-dev |
+                    <a href="https://github.com/winux-dev/web-tools">GitHub</a>
+                    | Licensed under the GNU AGPL v3
+                </p>
+            </footer>
         </div>
-        <br />
-        <label for="offsetY">Y Offset</label><br />
-        <input type="range" name="offsetY" id="offsetY" min="0" max="0" />
-        <br /><br />
-        <button onclick="splitImage()">Split My Image!</button>
-        <br /><br />
-        <div id="output"></div>
-        <br />
-        <p>
-            To save your images, right click them and press "Save Image As..."
-        </p>
 
         <script id="app">
+            // aspect ratio inputs
+            const xRatioInterface = document.getElementById("ratio-x");
+            const yRatioInterface = document.getElementById("ratio-y");
+            console.debug("Created ratio interface pointers");
+            // slice count input
+            const sliceInterface = document.getElementById("slice-count");
+            console.debug("Created slice interface pointer");
+            // file input element
+            const fileInterface = document.getElementById("file");
+            fileInterface.value = null;
+            console.debug("Created file interface pointer");
+            // canvas for image processing
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            console.debug("Created processing canvas");
+            // output div
+            const output = document.getElementById("output");
+            console.debug("Created output div pointer");
+
+            // array to keep track of output blob images
+            let blobs = [];
+            console.debug("Created blob tracker");
+            // Image object to hold file's data
+            const image = new Image();
+            console.debug("Created image reader");
+            // create FileReader object
+            const reader = new FileReader();
+            console.debug("Created file reader");
+            reader.onload = () => {
+                // set image source to file on read
+                image.src = reader.result;
+                console.debug("Loaded file " + reader.result);
+            };
+            reader.onerror = () => {
+                alert("Please select a valid image.");
+                fileInterface.value = null;
+                console.debug("Error reading file");
+            };
+
             function splitImage() {
-                const reader = new FileReader();
-                let input = document.getElementById("file");
-                let image = new Image();
-                reader.onload = () => {
-                    image.src = reader.result;
-                };
-                image.onload = () => {
-                    let sliceCount =
-                        document.getElementById("sliceCount").value;
-                    let output = document.getElementById("output");
-                    let canvasWidth = Math.floor(image.width / sliceCount);
-                    for (let slice = 0; slice < sliceCount; slice++) {
-                        let canvas = document.createElement("canvas");
-                        canvas.width = canvasWidth;
-                        canvas.height = image.height;
-                        let context = canvas.getContext("2d");
-                        context.drawImage(
-                            image,
-                            canvas.width * slice,
-                            0,
-                            image.width,
-                            image.height,
-                            0,
-                            0,
-                            image.width,
-                            image.height,
+                // check if user has not selected an image
+                if (!fileInterface.files[0]) {
+                    alert("You have not selected an image!");
+                    return;
+                }
+                console.debug("File selection validated");
+                // validate slice amount (any number greater than 0)
+                const sliceCount = sliceInterface.value;
+                if (!sliceCount || sliceCount <= 0) {
+                    alert("How many slices do you want?");
+                    return;
+                }
+                console.debug("Slice count validated");
+                // validate ratio (blank or 0 will cancel operation)
+                const xRatio = xRatioInterface.value;
+                const yRatio = yRatioInterface.value;
+                if (!(xRatio || yRatio)) {
+                    alert("Are you sure that's a valid aspect ratio?");
+                    return;
+                }
+                console.debug("Aspect ratio validated");
+                // clear previous blobs when user uploads new image
+                blobs.forEach(URL.revokeObjectURL);
+                output.replaceChildren();
+                console.debug("Cleared previous blobs");
+                blobs.length = 0;
+                console.debug("Cleared blob tracker");
+                // resize blob tracker
+                blobs.length = sliceCount - 1;
+                // cache values to improve performance
+                const imageWidth = image.width;
+                const imageHeight = image.height;
+                console.debug(
+                    "Cached image size " + imageWidth + "x" + imageHeight,
+                );
+                // modify canvas to split image accordingly
+                const canvasWidth = Math.floor(imageWidth / sliceCount);
+                const canvasHeight = Math.floor(
+                    (canvasWidth / xRatio) * yRatio,
+                );
+                canvas.width = canvasWidth;
+                canvas.height = canvasHeight;
+                console.debug(
+                    "Set canvas size to " + canvasWidth + "x" + canvasHeight,
+                );
+                // calculate image Y offset for centering
+                const yOffset = Math.floor((imageHeight - canvasHeight) / 2);
+                console.debug("Set image Y offset to " + yOffset);
+                // create document fragment to group images
+                const result = document.createDocumentFragment();
+                // render images in multiple parts to split them
+                for (
+                    let slice = 0, finishedSlices = 1;
+                    slice < sliceCount;
+                    slice++
+                ) {
+                    console.debug("Running slice iteration " + slice);
+                    context.drawImage(
+                        image,
+                        canvasWidth * slice,
+                        yOffset,
+                        canvasWidth,
+                        canvasHeight,
+                        0,
+                        0,
+                        canvasWidth,
+                        canvasHeight,
+                    );
+                    console.debug("Slicing image in canvas");
+                    // convert canvas render into blob imag
+                    canvas.toBlob((blob) => {
+                        console.debug("Creating blob " + slice);
+                        // create output image object
+                        const outputImg = document.createElement("img");
+                        console.debug(
+                            "Created image display for blob " + slice,
                         );
-                        output.appendChild(canvas);
-                    }
-                };
-                reader.readAsDataURL(input.files[0]);
+                        // create object URL for the blob
+                        const url = URL.createObjectURL(blob);
+                        console.debug("Created URL for blob " + slice);
+                        // track blob to clear later
+                        blobs[slice] = blob;
+                        console.debug("Tracked blob " + slice);
+                        // display the blob image to user
+                        outputImg.src = url;
+                        console.debug("Setting image to blob URL " + url);
+                        result.appendChild(outputImg);
+                        console.debug(
+                            "Appending slice " + slice + " to fragment",
+                        );
+                        output.appendChild(outputImg);
+                    });
+                }
             }
         </script>
     </body>
