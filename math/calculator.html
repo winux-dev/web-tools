@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Calculator | Winux's Web Tools</title>
+        <style>
+            #body {
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 88vh;
+            }
+            #calculator {
+                width: fit-content;
+                height: fit-content;
+            }
+            #display {
+                width: 9.5em;
+            }
+            button {
+                width: 2em;
+                margin-top: 0.5em;
+            }
+            .centered {
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="centered">
+            <a href="https://winux-dev.github.io/web-tools/">Home</a> |
+            <a href="https://github.com/winux-dev/web-tools/">GitHub</a>
+        </nav>
+        <div id="body">
+            <div id="calculator">
+                <input type="text" id="display" placeholder="0" readonly />
+                <br />
+                <button id="keypad_add" onclick="keypad_pressed('+')">+</button>
+                <button id="keypad_subtract" onclick="keypad_pressed('-')">
+                    -
+                </button>
+                <button id="keypad_multiply" onclick="keypad_pressed('*')">
+                    *
+                </button>
+                <button id="keypad_divide" onclick="keypad_pressed('/')">
+                    /
+                </button>
+                <br />
+                <button id="keypad_1" onclick="keypad_pressed('1')">1</button>
+                <button id="keypad_2" onclick="keypad_pressed('2')">2</button>
+                <button id="keypad_3" onclick="keypad_pressed('3')">3</button>
+                <button id="keypad_bracket_open" onclick="keypad_pressed('(')">
+                    (
+                </button>
+                <br />
+                <button id="keypad_4" onclick="keypad_pressed('4')">4</button>
+                <button id="keypad_5" onclick="keypad_pressed('5')">5</button>
+                <button id="keypad_6" onclick="keypad_pressed('6')">6</button>
+                <button id="keypad_bracket_close" onclick="keypad_pressed(')')">
+                    )
+                </button>
+                <br />
+                <button id="keypad_7" onclick="keypad_pressed('7')">7</button>
+                <button id="keypad_8" onclick="keypad_pressed('8')">8</button>
+                <button id="keypad_9" onclick="keypad_pressed('9')">9</button>
+                <button id="keypad_decimal" onclick="keypad_pressed('.')">
+                    .
+                </button>
+                <br />
+                <button
+                    id="keypad_clear"
+                    onclick="document.getElementById('display').value = ''"
+                >
+                    C
+                </button>
+                <button id="keypad_0" onclick="keypad_pressed('0')">0</button>
+                <button id="keypad_delete" onclick="keypad_delete()"><-</button>
+                <button id="keypad_calculate" onclick="calculate()">=</button>
+            </div>
+        </div>
+        <p class="centered">
+            Copyright (C) winux-dev | Licensed under the GNU AGPL v3
+        </p>
+        <script>
+            display = document.getElementById("display");
+            invalid_input = false;
+            function keypad_pressed(number) {
+                if (invalid_input) {
+                    display.value = number;
+                    invalid_input = false;
+                } else {
+                    display.value = display.value + number;
+                }
+            }
+            function keypad_delete() {
+                if (invalid_input) {
+                    display.value = "";
+                    invalid_input = false;
+                }
+                if (display.value.length != 0) {
+                    display.value = display.value.slice(
+                        0,
+                        display.value.length - 1,
+                    );
+                }
+            }
+            function calculate() {
+                try {
+                    display.value = eval(display.value);
+                } catch (error) {
+                    display.value = "Invalid input";
+                    invalid_input = true;
+                }
+            }
+        </script>
+    </body>
+</html>
