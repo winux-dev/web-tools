@@ -16,16 +16,23 @@
 			flex-direction: column;
 			align-items: center;
 			justify-content: center;
-			min-height: 100%;
+			min-height: 90%;
 		}
 		textarea#entries {
 		    height: 5rem;
 		}
+		.text-center {
+		    text-align: center;
+		}
 	</style>
 </head>
 <body>
+    <nav class="text-center">
+        <a href="https://winux-dev.github.io/web-tools/">Home</a> |
+        <a href="https://github.com/winux-dev/web-tools/">GitHub</a>
+    </nav>
     <div id="main">
-        <header style="text-align: center">
+        <header class="text-center">
             <h3 style="color: red">Alpha Version</h3>
             <p style="color: red">
                 This app is still under alpha development.<br />
@@ -41,7 +48,7 @@
         <input id="group-count" name="group-count" type="number"></input>
         <button onclick="createGroups()">Create Groups</button>
         <div id="output"></div>
-        <footer style="text-align: center">
+        <footer class="text-center">
             <p>
                 Copyright (C) winux-dev |
                 <a href="https://github.com/winux-dev/web-tools">GitHub</a>
@@ -53,8 +60,8 @@
 	<script id="app">
 	    // pointer to entries input textarea
 	    const inputEntries = document.getElementById("entries");
-		  const inputGroupCount = document.getElementById("group-count");
-		  const outputDiv = document.getElementById("output");
+		const inputGroupCount = document.getElementById("group-count");
+		const outputDiv = document.getElementById("output");
 
 	    function createGroups() {
 			// clear debug console every button press
@@ -68,7 +75,7 @@
 
 			// cancel if entries are empty
 			if (entries == "") {
-			  alert("Did you forgot to add the entries?");
+			    alert("Did you forgot to add the entries?");
 				return;
 			}
 
@@ -82,12 +89,12 @@
 
 			// check input validity
 			if (entryCount < groupCount) {
-			  alert("I think you asked for too much groups.");
+			    alert("I think you asked for too much groups.");
 				return;
 			}
 			if (!groupCount) {
-			  alert("How much groups do you want to create?");
-			  return;
+			    alert("How much groups do you want to create?");
+			    return;
 			}
 
 			// clear output div before continuing
@@ -101,10 +108,10 @@
 
 			// repeat until groupCount groups are created
 			for (let group = 0; group < groupCount; group++) {
-			  /***********************************************
+			    /***********************************************
 				* CREATE A DIV TO DISPLAY EACH GROUP'S ENTRIES *
 				***********************************************/
-			  const display = document.createElement("div"); // create div object
+			    const display = document.createElement("div"); // create div object
 
 				const displayTitle = document.createElement("h5"); // create div title object
 				displayTitle.innerHTML = "Group " + (group + 1); // set div title to "Group {group}"
@@ -119,7 +126,7 @@
 				// if the current value is not enough to fill
 				// all remaining groups
 				if (entriesPerGroup % (groupCount - group) != 0) {
-				  entriesPerGroup = Math.round(entries.length / (groupCount - group));
+				    entriesPerGroup = Math.round(entries.length / (groupCount - group));
 					console.debug("Not enough entries left... setting entriesPerGroup to "+ entriesPerGroup);
 				}
 				// create new subarray for each group
@@ -133,7 +140,7 @@
 
 					if (entries[index] == undefined) {
 					    console.debug("No entry with index "+ index + "... cancelling iteration");
-						  continue;
+						continue;
 					}
 
 					// push a new entry into a group
@@ -150,7 +157,7 @@
 				***********************************************/
 				const groupLength = groups[group].length;
 				for (let i = 0; i < groupLength; i++) {
-				  const listItem = document.createElement("li");
+				    const listItem = document.createElement("li");
 					listItem.innerHTML = groups[group][i];
 					displayList.appendChild(listItem);
 				}
