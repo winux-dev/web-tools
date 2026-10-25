@@ -4,25 +4,10 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Group Generator | Winux's Web Tools</title>
-	<!-- TODO: unified base stylesheet
-	<link rel="stylesheet" href="/style.css">
-	-->
+	<link rel="stylesheet" href="https://winux-dev.github.io/web-tools/style.css">
 	<style>
-	    html, body {
-			height: 99%;
-		}
-	    div#main {
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			justify-content: center;
-			min-height: 90%;
-		}
 		textarea#entries {
 		    height: 5rem;
-		}
-		.text-center {
-		    text-align: center;
 		}
 	</style>
 </head>
@@ -33,8 +18,8 @@
     </nav>
     <div id="main">
         <header class="text-center">
-            <h3 style="color: red">Alpha Version</h3>
-            <p style="color: red">
+            <h3 class="text-red">Alpha Version</h3>
+            <p class="text-red">
                 This app is still under alpha development.<br />
                 Expect bugs and missing features.<br />
                 <a href="https://github.com/winux-dev/web-tools/issues">
@@ -150,6 +135,14 @@
 							index, 1
 						)[0] // this returns an array, we only want the spliced entry
 					);
+				}
+
+				// add remaining elements if still remaining
+				if (entries.length != 0 && group + 1 == groupCount) {
+				    console.debug("Entries left. Adding remaining entries...");
+				    while (entries.length != 0) {
+						groups[groups.length - 1].push(entries.pop());
+					}
 				}
 
 				/***********************************************
