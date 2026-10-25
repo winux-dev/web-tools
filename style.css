@@ -11,3 +11,6 @@ div#main {
 .text-center {
     text-align: center;
 }
+.text-red {
+    color: red;
+}
